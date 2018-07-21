@@ -43,7 +43,7 @@ var myAudioCoins = createCoinAudios();
 function playCoinAudio() {
 	//coinAudioNum = (coinAudioNum+ 1) % COINAUDIOBUFFER;
 	//myAudioCoins[coinAudioNum].play();
-	audioJump.play();
+	audioCoin.play();
 }
 
 var translateDrawX = function(baselineX) {
@@ -360,7 +360,7 @@ function gameLoop() {
 		ctx.font = "30px Arial";
 		ctx.textAlign = "center";
 		ctx.fillText("Game Over",canvas.width/2,canvas.height/2);
-		ctx.fillText("Press here to start over!",canvas.width/2,(canvas.height/2)+textLineHeight());
+		ctx.fillText("Press here to start over",canvas.width/2,(canvas.height/2)+textLineHeight());
 	} else {
 		if (!themeMusicPlaying) { 
 			//audioThemeMusic.play();
