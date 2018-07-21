@@ -255,6 +255,16 @@ window.addEventListener('keyup', function (e) {
 	console.log("keyCode = " + e.keyCode)
 }, false);
 
+window.addEventListener('touchstart', function (e) {
+	if (endGame) {
+		levels = createLevels();
+		level = 1;
+		endGame = false;
+	} else  {
+		runningMan.startJumping();
+	}
+}, false);
+
 audioThemeMusic.addEventListener("ended", function() 
  {
 //	  themeMusicPlaying = false;
