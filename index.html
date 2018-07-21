@@ -5,10 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Hello Running Man</title>
+    <style>
+		html, body {
+			width: 100%;
+			height: 100%;
+			margin: 0px;
+			border: 0;
+			overflow: hidden; /*  Disable scrollbars */
+			display: block;  /* No floating content on sides */
+		}
+	</style>
 </head>
 <body>
-    <h1>Hello running man!</h1>
-    <canvas id="myCanvas" width="600" height="400" style="border:1px solid #000000;">
+     <canvas id="myCanvas" width="600" height="400" style="border:1px solid #000000;">
         Your browser does not support the HTML5 canvas tag.
         </canvas>
         <script type='text/javascript' src="RunningGame.js"></script>

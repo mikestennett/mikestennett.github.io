@@ -244,6 +244,34 @@ runningMan = new sprite({
 	imageHeight: 20
 });
 
+// this doesn't seem to work that greate but it's the best I've found so far
+function determineFontHeight(fontStyle) {
+  var body = document.getElementsByTagName("body")[0];
+  var dummy = document.createElement("div");
+  var dummyText = document.createTextNode("MgR");
+  dummy.appendChild(dummyText);
+  dummy.setAttribute("style", fontStyle);
+  body.appendChild(dummy);
+  var result = dummy.offsetHeight;
+  body.removeChild(dummy);
+  return result + 5;
+};
+
+function determineFontHeight2(fontStyle) {
+	var emHeight = parseInt(ctx.font.split(' ')[0].replace('px', '')); //parsing string
+	return emHeight;
+};
+
+function textLineHeight() {
+	console.log("font = " + ctx.font);
+	var myheight = determineFontHeight2(ctx.font);
+	console.log("textLineHeight = " + myheight);
+	return  myheight;
+}
+
+
+// Event Listeners
+
 window.addEventListener('keyup', function (e) {
 	if (e.keyCode === 32) {
 		runningMan.startJumping();
@@ -271,45 +299,24 @@ audioThemeMusic.addEventListener("ended", function()
 	  console.log("Replaying music");
  });
 
+ var setCanvasSize = function() {
+	var w = window,
+	d = document,
+	e = d.documentElement,
+	g = d.getElementsByTagName('body')[0],
+	xS = w.innerWidth,
+	yS = w.innerHeight;
+	//alert('window ' + w.innerWidth + ' × ' + w.innerHeight + ' element ' + + e.clientWidth + ' × ' + e.clientHeight + ' body ' + + g.clientWidth + ' × ' + g.clientHeight);
+	canvas.width = xS;
+	canvas.height = yS;
+	}
 
-// this doesn't seem to work that greate but it's the best I've found so far
-function determineFontHeight(fontStyle) {
-  var body = document.getElementsByTagName("body")[0];
-  var dummy = document.createElement("div");
-  var dummyText = document.createTextNode("MgR");
-  dummy.appendChild(dummyText);
-  dummy.setAttribute("style", fontStyle);
-  body.appendChild(dummy);
-  var result = dummy.offsetHeight;
-  body.removeChild(dummy);
-  return result + 5;
-};
-
-function determineFontHeight2(fontStyle) {
-	var emHeight = parseInt(ctx.font.split(' ')[0].replace('px', '')); //parsing string
-	return emHeight;
-};
-
-
-
-
-function textLineHeight() {
-	console.log("font = " + ctx.font);
-	var myheight = determineFontHeight2(ctx.font);
-	console.log("textLineHeight = " + myheight);
-	return  myheight;
-}
+// Main Loop
 
 function gameLoop() {
+	setCanvasSize();
 	console.log("levels.length " + levels.length + " level " + level);
 	if (endGame) {
-//		ctx.textAlign = "left";
-//		ctx.font = "16px Arial";
-//		ctx.fillText("Level: " + level + "  Score: "+ score,10,20);
-//		ctx.font = "30px Arial";
-//		ctx.textAlign = "center";
-//		ctx.fillText("Game Over",canvas.width/2,canvas.height/2);
-//		drawVideo();
 		ctx.textAlign = "left";
 		ctx.font = "16px Arial";
 		ctx.fillText("Level: " + level + "  Score: "+ score,10,20);
@@ -324,7 +331,6 @@ function gameLoop() {
 		}
 		backgroundX = (backgroundX + speed) % 330;
 		myDrawImage(groundImage, backgroundX , 0, canvas.width, 1080, 0, 0, canvas.width, canvas.height);
-		//drawVideo();
 		for (var i = 0; i < levels[level-1].coins.length; i++) {
 			if (isIntercecting(levels[level-1].coins[i], runningMan )) {
 				console.log("Hit");
