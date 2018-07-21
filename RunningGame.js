@@ -9,6 +9,8 @@ var ctx = canvas.getContext("2d");
 var RUNNING = 0;
 var JUMPING = 1;
 var COINAUDIOBUFFER = 5;
+var BASE_WIDTH = 600;
+var BASE_HEIGHT = 400;
 var backgroundX = 0;
 var score = 0;
 var level = 1; 
@@ -43,9 +45,34 @@ function playCoinAudio() {
 	myAudioCoins[coinAudioNum].play();
 }
 
+var translateDrawX = function(baselineX) {
+	ratio = canvas.width/BASE_WIDTH;
+	newX = baselineX * ratio;
+	console.log('x '+ baselineX + ' newX =' + newX + 'canvas width ' + canvas.width + ' ratio ' + ratio);
+	return (newX);
+ }
+ 
+ var translateDrawY = function(baselineY) {
+	ratio = canvas.height/BASE_HEIGHT;
+	newY = baselineY * ratio;
+	console.log('y '+ baselineY + ' newY =' + newY + 'canvas height ' + canvas.height + ' ratio ' + ratio);
+	return (newY);
+ }
+ 
+
+
 
 function myDrawImage (image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
-	ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, canvas.height - dy - dHeight, dWidth, dHeight);
+	ctx.drawImage(image, 
+		sx, 
+		sy, 
+		sWidth, 
+		sHeight, 
+		translateDrawX(dx), 
+		canvas.height - translateDrawY(dy) - translateDrawY(dHeight), 
+		translateDrawX(dWidth), 
+		translateDrawY(dHeight)
+	);
 	
 }
 
@@ -67,7 +94,7 @@ Level.prototype.update = function() {
 	this.length = this.length - this.speed;
 	if (this.length < 0) {
 		level += 1;
-	    console.log("levels.length " + levels.length + " level " + level);
+//	    console.log("levels.length " + levels.length + " level " + level);
 		if (level > levels.length) {
 			endGame = true;
 		} else {
@@ -153,7 +180,8 @@ sprite.prototype.render = function() {
         this.x,
         this.y,
         this.width,
-        this.height);
+		this.height
+	);
 };
 
 function backgroundSprite (options) {
@@ -263,9 +291,9 @@ function determineFontHeight2(fontStyle) {
 };
 
 function textLineHeight() {
-	console.log("font = " + ctx.font);
+//	console.log("font = " + ctx.font);
 	var myheight = determineFontHeight2(ctx.font);
-	console.log("textLineHeight = " + myheight);
+//	console.log("textLineHeight = " + myheight);
 	return  myheight;
 }
 
@@ -299,6 +327,7 @@ audioThemeMusic.addEventListener("ended", function()
 	  console.log("Replaying music");
  });
 
+
  var setCanvasSize = function() {
 	var w = window,
 	d = document,
@@ -330,7 +359,7 @@ function gameLoop() {
 			themeMusicPlaying = true;
 		}
 		backgroundX = (backgroundX + speed) % 330;
-		myDrawImage(groundImage, backgroundX , 0, canvas.width, 1080, 0, 0, canvas.width, canvas.height);
+		myDrawImage(groundImage, backgroundX , 0, BASE_WIDTH, 1080, 0, 0, BASE_WIDTH, BASE_HEIGHT);
 		for (var i = 0; i < levels[level-1].coins.length; i++) {
 			if (isIntercecting(levels[level-1].coins[i], runningMan )) {
 				console.log("Hit");
