@@ -1,0 +1,7 @@
+
+node_modules/
+hello-world-win32-x64/
+*.exe
+*linux
+*macos
+
