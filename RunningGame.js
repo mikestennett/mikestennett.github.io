@@ -19,9 +19,9 @@ var endGame = false;
 
 var themeMusicPlaying = false;
 
-var audioThemeMusic = new Audio('audio/themeMusic.mp3'); 
-var audioJump = new Audio('audio/smb_jump-small.wav'); 
 var audioCoin = new Audio('audio/smb_coin.wav');
+var audioJump = new Audio('audio/smb_jump-small.wav'); 
+var audioThemeMusic = new Audio('audio/themeMusic.mp3'); 
 
 var mediaSource = "http://upload.wikimedia.org/wikipedia/commons/7/79/Big_Buck_Bunny_small.ogv"
 
