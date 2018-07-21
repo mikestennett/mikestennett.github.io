@@ -23,60 +23,7 @@ var audioCoin = new Audio('audio/smb_coin.wav');
 
 var mediaSource = "http://upload.wikimedia.org/wikipedia/commons/7/79/Big_Buck_Bunny_small.ogv"
 
-var videoContainer; // object to hold video and associated info
-var video = document.createElement("video"); // create a video element
-video.src = mediaSource;
-// the video will now begin to load.
-// As some additional info is needed we will place the video in a
-// containing object for convenience
-video.autoPlay = false; // ensure that the video does not auto play
-video.loop = false; // set the video to loop.
-video.muted = false;
-videoContainer = {  // we will add properties as needed
-     video : video,
-     ready : false,   
-};
-// To handle errors. This is not part of the example at the moment. Just fixing for Edge that did not like the ogv format video
-video.onerror = function(e){
-    document.body.removeChild(canvas);
-    document.body.innerHTML += "<h2>There is a problem loading the video</h2><br>";
-    document.body.innerHTML += "Users of IE9+ , the browser does not support WebM videos used by this demo";
-    document.body.innerHTML += "<br><a href='https://tools.google.com/dlpage/webmmf/'> Download IE9+ WebM support</a> from tools.google.com<br> this includes Edge and Windows 10";
-    
- }
-video.oncanplay = readyToPlayVideo; // set the event to the play function that 
-                                  // can be found below
-function readyToPlayVideo(event){ // this is a referance to the video
-    // the video may not match the canvas size so find a scale to fit
-    videoContainer.scale = Math.min(
-                         canvas.width / this.videoWidth, 
-                         canvas.height / this.videoHeight) * 0.9; 
-    videoContainer.ready = true;
-    // the video can be played so hand it off to the display function
-    //requestAnimationFrame(updateCanvas);
-    // add instruction
-    //document.getElementById("playPause").textContent = "Click video to play/pause.";
-    //document.querySelector(".mute").textContent = "Mute";
-	videoContainer.video.play();
 
-}
-
-function drawVideo() {
-	if(videoContainer !== undefined && videoContainer.ready){ 
-        // find the top left of the video on the canvas
-        video.muted = false;
-        var scale = videoContainer.scale;
-        var vidH = videoContainer.video.videoHeight;
-        var vidW = videoContainer.video.videoWidth;
-//        var top = canvas.height / 2 - (vidH /2 ) * scale;
-//        var left = canvas.width / 2 - (vidW /2 ) * scale;
-        var top = 25;
-        var left = 5;
-        // now just draw the video the correct size
-        ctx.drawImage(videoContainer.video, left, top, vidW * scale, vidH * scale);
-    }
-
-}
 
 var createCoinAudios = function() {
 
