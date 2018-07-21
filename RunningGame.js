@@ -59,19 +59,16 @@ var translateDrawX = function(baselineX) {
 	return (newY);
  }
  
-
-
-
 function myDrawImage (image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
 	ctx.drawImage(image, 
 		sx, 
 		sy, 
 		sWidth, 
 		sHeight, 
-		translateDrawX(dx), 
-		canvas.height - translateDrawY(dy) - translateDrawY(dHeight), 
-		translateDrawX(dWidth), 
-		translateDrawY(dHeight)
+		translateDrawX(dx), // Translating for window size from BASE coordinates
+		canvas.height - translateDrawY(dy) - translateDrawY(dHeight), // translating so zero is at the bottom of the screen
+		translateDrawX(dWidth), // Translating for window size from BASE coordinates
+		translateDrawY(dHeight) // Translating for window size from BASE coordinates
 	);
 	
 }
@@ -321,6 +318,16 @@ window.addEventListener('touchstart', function (e) {
 	}
 }, false);
 
+window.addEventListener('click', function (e) {
+	if (endGame) {
+		levels = createLevels();
+		level = 1;
+		endGame = false;
+	} else  {
+		runningMan.startJumping();
+	}
+}, false);
+
 audioThemeMusic.addEventListener("ended", function() 
  {
 //	  themeMusicPlaying = false;
@@ -352,7 +359,7 @@ function gameLoop() {
 		ctx.font = "30px Arial";
 		ctx.textAlign = "center";
 		ctx.fillText("Game Over",canvas.width/2,canvas.height/2);
-		ctx.fillText("Press 'R' to restart!",canvas.width/2,(canvas.height/2)+textLineHeight());
+		ctx.fillText("Press here to restart!",canvas.width/2,(canvas.height/2)+textLineHeight());
 	} else {
 		if (!themeMusicPlaying) { 
 			//audioThemeMusic.play();
