@@ -41,8 +41,9 @@ var coinAudioNum = 0;
 var myAudioCoins = createCoinAudios();
 
 function playCoinAudio() {
-	coinAudioNum = (coinAudioNum+ 1) % COINAUDIOBUFFER;
-	myAudioCoins[coinAudioNum].play();
+	//coinAudioNum = (coinAudioNum+ 1) % COINAUDIOBUFFER;
+	//myAudioCoins[coinAudioNum].play();
+	audioCoin.play();
 }
 
 var translateDrawX = function(baselineX) {
