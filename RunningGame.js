@@ -128,7 +128,7 @@ sprite.prototype.startJumping = function() {
 	if (this.moveMode != JUMPING) {
 		this.moveMode = JUMPING;
 		this.jumpStartY = this.y;
-		audioJump.play();
+		audioCoin.play();
 	}
 };
 
