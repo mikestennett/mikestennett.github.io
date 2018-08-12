@@ -9,13 +9,15 @@ var ctx = canvas.getContext("2d");
 var RUNNING = 0;
 var JUMPING = 1;
 var COINAUDIOBUFFER = 5;
-var BASE_WIDTH = 608;
-var BASE_HEIGHT = 342;
+var BASE_WIDTH = 600;
+var BASE_HEIGHT = 400;
+var backgroundX = 0;
 var score = 0;
 var level = 1;
+var speed = 6;
+var endGame = false;
+
 var themeMusicPlaying = false;
-var GROUND_LEVEL = 60;
-var currentGameScreen = new GameScreen("test");
 
 //var audioCoin = new Audio('audio/smb_coin.wav');
 //var audioJump = new Audio('audio/smb_jump-small.wav');
@@ -105,6 +107,27 @@ var isIntercecting = function (obj1, obj2) {
 		return false;
 }
 
+function Level(options) {
+	this.speed = options.speed;
+	this.coins = options.coins;
+	this.length = 4000;
+}
+
+Level.prototype.update = function () {
+	this.length = this.length - this.speed;
+	if (this.length < 0) {
+		level += 1;
+		//	    console.log("levels.length " + levels.length + " level " + level);
+		if (level > levels.length) {
+			endGame = true;
+		} else {
+			speed = levels[level - 1].speed;
+		}
+	}
+}
+
+
+
 function sprite(options) {
 	this.frameIndex = 0;
 	this.tickCount = 0;
@@ -133,6 +156,7 @@ sprite.prototype.startJumping = function () {
 		playJumpAudio();
 	}
 };
+
 
 sprite.prototype.update = function () {
 
@@ -168,6 +192,7 @@ sprite.prototype.update = function () {
 	}
 };
 
+
 sprite.prototype.render = function () {
 	// Draw the animation
 	myDrawImage(
@@ -190,7 +215,7 @@ function backgroundSprite(options) {
 backgroundSprite.prototype = Object.create(sprite.prototype);
 backgroundSprite.prototype.constructor = backgroundSprite;
 
-backgroundSprite.prototype.update = function (speed) {
+backgroundSprite.prototype.update = function () {
 	// Draw the animation
 	this.x = this.x - speed;
 	sprite.prototype.update.call(this);
@@ -206,7 +231,7 @@ coinImage.src = "images/coin-sprite-animation.png";
 var runningImage = new Image();
 runningImage.src = "images/Running animation test (1).png"
 
-var baseLevelY = GROUND_LEVEL;
+var baseLevelY = 70;
 var coords = [
 	{ x: 400, y: baseLevelY + 0 },
 	{ x: 650, y: baseLevelY + 0 },
@@ -221,6 +246,7 @@ var coords = [
 	{ x: 2800, y: baseLevelY + 100 },
 	{ x: 3550, y: baseLevelY + 100 },
 ];
+
 
 var createCoins = function (coords) {
 
@@ -243,6 +269,20 @@ var createCoins = function (coords) {
 	return coins;
 }
 
+var createLevels = function () {
+	var levels = [];
+	levels.push(new Level({ speed: 8, coins: createCoins(coords) }))
+	//	levels.push(new Level({speed: 5, coins:createCoins(coords)}))
+	//	levels.push(new Level({speed: 8 , coins:createCoins(coords)}))
+	return levels;
+}
+
+var levels = createLevels();
+
+var coins = createCoins(coords);
+
+
+
 runningMan = new sprite({
 	context: canvas.getContext("2d"),
 	width: 27,
@@ -251,7 +291,7 @@ runningMan = new sprite({
 	numberOfFrames: 9,
 	ticksPerFrame: 0,
 	x: 70,
-	y: GROUND_LEVEL,
+	y: 70,
 	imageWidth: 90,
 	imageHeight: 20
 });
@@ -281,41 +321,39 @@ function textLineHeight() {
 	return myheight;
 }
 
-var setCanvasSize = function () {
-	var w = window,
-		d = document,
-		e = d.documentElement,
-		g = d.getElementsByTagName('body')[0],
-		width = w.innerWidth,
-		height = w.innerHeight;
-	//alert('window ' + w.innerWidth + ' × ' + w.innerHeight + ' element ' + + e.clientWidth + ' × ' + e.clientHeight + ' body ' + + g.clientWidth + ' × ' + g.clientHeight);
-	var calculatedHeight = width/16*9;
-	var calculatedWidth = height/9*16;
-	
-	if (calculatedHeight < height) {
-		canvas.width = width;
-		canvas.height = calculatedHeight;
-	} else {
-		canvas.width = calculatedWidth;
-		canvas.height = height;
-	}
-	//canvas.width = width;
-	//canvas.height = height;
-
-}
 
 // Event Listeners
 
 window.addEventListener('keyup', function (e) {
-	currentGameScreen.onKeyUp(e);
+	//console.log(e);
+	if (e.keyCode === 32) {
+		runningMan.startJumping();
+	} else if (e.keyCode === 82) {
+		levels = createLevels();
+		level = 1;
+		endGame = false;
+	}
+	//console.log("keyCode = " + e.keyCode)
 }, false);
 
 window.addEventListener('touchstart', function (e) {
-	currentGameScreen.onClick(e);
+	if (endGame) {
+		levels = createLevels();
+		level = 1;
+		endGame = false;
+	} else {
+		runningMan.startJumping();
+	}
 }, false);
 
 window.addEventListener('click', function (e) {
-	currentGameScreen.onClick(e);
+	if (endGame) {
+		levels = createLevels();
+		level = 1;
+		endGame = false;
+	} else {
+		runningMan.startJumping();
+	}
 }, false);
 
 /*
@@ -325,112 +363,60 @@ audioThemeMusic.addEventListener("ended", function () {
 });
 */
 
-function RunScreen(screenName) {
-	GameScreen.call(this, screenName);
-	this.backgroundX = 0;
-	this.enteringScreen = true;
-	this.coins = null;
-	this.speed = 0;
-	this.levelLength = 4000;
+var setCanvasSize = function () {
+	var w = window,
+		d = document,
+		e = d.documentElement,
+		g = d.getElementsByTagName('body')[0],
+		xS = w.innerWidth,
+		yS = w.innerHeight;
+	//alert('window ' + w.innerWidth + ' × ' + w.innerHeight + ' element ' + + e.clientWidth + ' × ' + e.clientHeight + ' body ' + + g.clientWidth + ' × ' + g.clientHeight);
+	canvas.width = xS;
+	canvas.height = yS;
 }
-
-RunScreen.prototype = Object.create(GameScreen.prototype);
-RunScreen.prototype.constructor = RunScreen;
-
-RunScreen.prototype.enteringGameScreen = function() {
-	this.enteringScreen = true;
-	this.backgroundX = 0;
-	this.coins = createCoins(coords);
-	this.speed = 4 + level * 2;
-	this.levelLength = 4000;
-
-};
-
-RunScreen.prototype.renderScreen = function () {
-	if (!themeMusicPlaying) {
-		//audioThemeMusic.play();
-		themeMusicPlaying = true;
-	}
-
-	this.backgroundX = (this.backgroundX + this.speed) % 330;
-	myDrawImage(groundImage, this.backgroundX, 0, BASE_WIDTH, 1080, 0, 0, BASE_WIDTH, BASE_HEIGHT);
-
-	for (var i = 0; i < this.coins.length; i++) {  // For each coin
-		if (isIntercecting(this.coins[i], runningMan)) { // If a coin is hit
-			// console.log("Hit");
-			playCoinAudio(); // Play audio
-			score += 1;
-			this.coins.splice(i, 1); // Remove from coin list so you don't hit it again or draw it
-			i--;
-		} else {
-			this.coins[i].update(this.speed); // Update coin image to animate
-			this.coins[i].render(); 
-		}
-	}
-	runningMan.update(); // Update to animate
-	runningMan.render(); 
-		// Print Score
-	ctx.textAlign = "left";
-	ctx.font = "16px Arial";
-	ctx.fillText("Level: " + level + "  Score: " + score, 10, 20);
-	this.levelLength = this.levelLength - this.speed;
-	if (this.levelLength < 0) {
-		this.goToNextScreen();
-		level += 1;
-	}
-};
-
-RunScreen.prototype.onClick = function(currentEvent) {
-	runningMan.startJumping();
-};
-
-RunScreen.prototype.onKeyUp = function(currentEvent) {
-	if (currentEvent.keyCode === 32) {
-		runningMan.startJumping();
-	}
-};
-
-function GameOverScreen(screenName) {
-	GameScreen.call(this, screenName);
-}
-
-GameOverScreen.prototype = Object.create(GameScreen.prototype);
-GameOverScreen.prototype.constructor = GameOverScreen;
-
-GameOverScreen.prototype.renderScreen = function () {
-	ctx.textAlign = "left";
-	ctx.font = "16px Arial";
-	ctx.fillText("Level: " + (level-1) + "  Score: " + score, 10, 20);
-	ctx.font = "30px Arial";
-	ctx.textAlign = "center";
-	ctx.fillText("Level Complete", canvas.width / 2, canvas.height / 2);
-	ctx.fillText("Press anywhere to start next level!!!", canvas.width / 2, (canvas.height / 2) + textLineHeight());
-};
-
-GameScreen.prototype.onKeyUp = function(currentEvent) {
-	if (currentEvent.keyCode === 32) {
-		this.goToNextScreen();
-	}
-};
-
-var splashScreen = new GameScreen("Splash Screen");
-var menuScreen = new GameScreen("Menu Screen");
-var runScreen = new RunScreen("Run");
-var gameOverScreen = new GameOverScreen("Game Over");
-splashScreen.nextScreen = menuScreen;
-menuScreen.nextScreen = runScreen;
-runScreen.nextScreen = gameOverScreen;
-gameOverScreen.nextScreen = runScreen;
-currentGameScreen = splashScreen;
 
 // Main Loop
 
 function gameLoop() {
-	var tmpGameScreen = currentGameScreen.checkAndGoToNext();
-	currentGameScreen = tmpGameScreen;
 	setCanvasSize();
 	//console.log("levels.length " + levels.length + " level " + level);
-	currentGameScreen.renderScreen();
+	if (endGame) {
+		ctx.textAlign = "left";
+		ctx.font = "16px Arial";
+		ctx.fillText("Level: " + level + "  Score: " + score, 10, 20);
+		ctx.font = "30px Arial";
+		ctx.textAlign = "center";
+		ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2);
+		ctx.fillText("Press here to start over!!!", canvas.width / 2, (canvas.height / 2) + textLineHeight());
+	} else {
+		if (!themeMusicPlaying) {
+			//audioThemeMusic.play();
+			themeMusicPlaying = true;
+		}
+		backgroundX = (backgroundX + speed) % 330;
+		myDrawImage(groundImage, backgroundX, 0, BASE_WIDTH, 1080, 0, 0, BASE_WIDTH, BASE_HEIGHT);
+		for (var i = 0; i < levels[level - 1].coins.length; i++) {
+			if (isIntercecting(levels[level - 1].coins[i], runningMan)) {
+				console.log("Hit");
+				playCoinAudio();
+				score += 1;
+				levels[level - 1].coins.splice(i, 1);
+				i--;
+			} else {
+				levels[level - 1].coins[i].update();
+				levels[level - 1].coins[i].render();
+			}
+		}
+		runningMan.update();
+		runningMan.render();
+		levels[level - 1].update();
+		// Print Score
+		ctx.textAlign = "left";
+		ctx.font = "16px Arial";
+		ctx.fillText("Level: " + level + "  Score: " + score, 10, 20);
+	}
+
+
 	window.requestAnimationFrame(gameLoop);
 };
 
