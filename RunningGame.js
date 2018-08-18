@@ -16,6 +16,7 @@ var level = 1;
 var themeMusicPlaying = false;
 var GROUND_LEVEL = 60;
 var currentGameScreen = new GameScreen("test");
+var pressedDown = false;
 
 //var audioCoin = new Audio('audio/smb_coin.wav');
 //var audioJump = new Audio('audio/smb_jump-small.wav');
@@ -64,7 +65,7 @@ function playCoinAudio() {
 var translateDrawX = function (refCoordX) {
 	ratio = canvas.width / BASE_WIDTH;
 	newX = refCoordX * ratio;
-	//console.log('x ' + refCoordX + ' newX =' + newX + 'canvas width ' + canvas.width + ' ratio ' + ratio);
+	//console.log('newX =' + newX + ' ratio ' + ratio);
 	return (newX);
 }
 
@@ -80,10 +81,18 @@ var translateDrawY = function (refCoordY) {
 	return (newY);
 }
 
+var myFontSize = function(fontPointSize) {
+	var newFontPointSize = Math.trunc(translateDrawY(fontPointSize));
+	//console.log("New Font Size = %i", newFontPointSize)
+	return(newFontPointSize);
+}
+
+
+
 /**
  * Does a draw image but changes the fourth quadrant to first quadrant for the coordinates.
  */
-function myDrawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
+var myDrawImage = function(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
 	ctx.drawImage(image,
 		sx,
 		sy,
@@ -97,7 +106,20 @@ function myDrawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
 
 }
 
+var myDrawRect = function(aRect) {
+	var x = translateDrawX(aRect.x);
+	var	y = canvas.height - translateDrawY(aRect.y) - translateDrawY(aRect.height);
+	var	width = translateDrawX(aRect.width);
+	var	height = translateDrawY(aRect.height);
+	ctx.rect(x, y, width, height);
+	ctx.fillRect(x, y, width, height);
+	ctx.stroke();
+}
+
+
+
 var isIntercecting = function (obj1, obj2) {
+
 	if (obj1.x < obj2.x + obj2.width && obj2.x < obj1.x + obj1.width && obj1.y < obj2.y + obj2.height) {
 		//    	console.log("Hit function");
 		return obj2.y < obj1.y + obj1.height;
@@ -105,7 +127,82 @@ var isIntercecting = function (obj1, obj2) {
 		return false;
 }
 
-function sprite(options) {
+var eventXYInRect = function(currentEvent, aRect) {
+	var translatedX = currentEvent.x;
+	var translatedY = canvas.height - currentEvent.y;
+	//console.log("x = " + translatedX + " y = " + translatedY);
+	if ((translatedX > translateDrawX(aRect.x)) &&
+		(translatedY > translateDrawY(aRect.y)) &&
+		(translatedX < translateDrawX(aRect.x + aRect.width)) &&
+		(translatedY < translateDrawY(aRect.y + aRect.height))) {
+		return true;
+	} else {
+		return false;
+	}
+
+}
+
+function Button(options) {
+	this.name = options.name;
+	this.x = options.x;
+	this.y = options.y;
+	this.width = options.width;
+	this.height = options.height;
+	this.fontPointSize = Math.trunc(this.height*0.75);
+	this.isPressed = false;
+	this.isClicked = false;
+}
+
+Button.prototype.render = function () {
+	// draw a box
+	var tmpFillStyle = ctx.fillStyle;
+	if (this.isPressed) {
+		ctx.fillStyle = 'black';
+	} else {
+		ctx.fillStyle = 'white';
+	}
+	myDrawRect(this);
+	// draw name
+	if (this.isPressed) {
+		ctx.fillStyle = 'white';
+	} else {
+		ctx.fillStyle = 'black';
+	}
+	ctx.font = myFontSize(this.fontPointSize) + "px Arial";
+	ctx.textAlign = "center";
+	ctx.fillText(this.name, 
+		translateDrawX(this.x + (this.width/2)), 
+		canvas.height - translateDrawY(this.y) - translateDrawY(this.height*0.25)) ;
+	ctx.fillStyle = tmpFillStyle;
+}
+
+Button.prototype.onTouchStart = function (currentEvent) {
+	if (eventXYInRect(currentEvent, this)) {
+		this.isPressed = true;
+	}
+}
+
+Button.prototype.onTouchMove = function (currentEvent) {
+	if (pressedDown) {
+		if (eventXYInRect(currentEvent, this)) {
+			this.isPressed = true;
+		} else {
+			this.isPressed = false;
+		}
+	} 
+}
+
+Button.prototype.onTouchEnd = function (currentEvent) {
+	if(this.isPressed) {
+		this.isPressed = false;
+		this.isClicked = true;
+	}	
+
+}
+
+
+
+function Sprite(options) {
 	this.frameIndex = 0;
 	this.tickCount = 0;
 	this.ticksPerFrame = options.ticksPerFrame || 0; // Default to 0 waits per frame
@@ -126,7 +223,7 @@ function sprite(options) {
 	this.jumpHeight = 130;
 }
 
-sprite.prototype.startJumping = function () {
+Sprite.prototype.startJumping = function () {
 	if (this.moveMode != JUMPING) {
 		this.moveMode = JUMPING;
 		this.jumpStartY = this.y;
@@ -134,7 +231,7 @@ sprite.prototype.startJumping = function () {
 	}
 };
 
-sprite.prototype.update = function () {
+Sprite.prototype.update = function () {
 
 	if (this.moveMode === JUMPING) {
 		//ohStartY -= jumpSpeed;
@@ -168,7 +265,7 @@ sprite.prototype.update = function () {
 	}
 };
 
-sprite.prototype.render = function () {
+Sprite.prototype.render = function () {
 	// Draw the animation
 	myDrawImage(
 		this.image,
@@ -183,17 +280,18 @@ sprite.prototype.render = function () {
 	);
 };
 
-function backgroundSprite(options) {
-	sprite.call(this, options);
+function BackgroundSprite(options) {
+	Sprite.call(this, options);
 }
 
-backgroundSprite.prototype = Object.create(sprite.prototype);
-backgroundSprite.prototype.constructor = backgroundSprite;
+BackgroundSprite.prototype = Object.create(Sprite.prototype);
+BackgroundSprite.prototype.constructor = BackgroundSprite;
 
-backgroundSprite.prototype.update = function (speed) {
+BackgroundSprite.prototype.update = function (speed) {
 	// Draw the animation
 	this.x = this.x - speed;
-	sprite.prototype.update.call(this);
+	this.speed = speed;
+	Sprite.prototype.update.call(this);
 
 };
 
@@ -226,8 +324,8 @@ var createCoins = function (coords) {
 
 	var coins = [];
 	for (var i in coords) {
-		// Create sprite
-		coins.push(new backgroundSprite({
+		// Create Sprite
+		coins.push(new BackgroundSprite({
 			context: canvas.getContext("2d"),
 			width: 30,
 			height: 30,
@@ -243,7 +341,7 @@ var createCoins = function (coords) {
 	return coins;
 }
 
-runningMan = new sprite({
+runningMan = new Sprite( {
 	context: canvas.getContext("2d"),
 	width: 27,
 	height: 40,
@@ -311,11 +409,31 @@ window.addEventListener('keyup', function (e) {
 }, false);
 
 window.addEventListener('touchstart', function (e) {
-	currentGameScreen.onClick(e);
+	currentGameScreen.onTouchStart(e);
+	pressedDown = true;
 }, false);
 
-window.addEventListener('click', function (e) {
-	currentGameScreen.onClick(e);
+window.addEventListener('touchend', function (e) {
+	currentGameScreen.onTouchEnd(e);
+	pressedDown = false;
+}, false);
+
+window.addEventListener('touchmove', function (e) {
+	currentGameScreen.onTouchMove(e);
+}, false);
+
+window.addEventListener('mousedown', function (e) {
+	currentGameScreen.onTouchStart(e);
+	pressedDown = true;
+}, false);
+
+window.addEventListener('mouseup', function (e) {
+	currentGameScreen.onTouchEnd(e);
+	pressedDown = false;
+}, false);
+
+window.addEventListener('mousemove', function (e) {
+	currentGameScreen.onTouchMove(e);
 }, false);
 
 /*
@@ -371,7 +489,7 @@ RunScreen.prototype.renderScreen = function () {
 	runningMan.render(); 
 		// Print Score
 	ctx.textAlign = "left";
-	ctx.font = "16px Arial";
+	ctx.font = myFontSize(16) + "px Arial";
 	ctx.fillText("Level: " + level + "  Score: " + score, 10, 20);
 	this.levelLength = this.levelLength - this.speed;
 	if (this.levelLength < 0) {
@@ -380,7 +498,7 @@ RunScreen.prototype.renderScreen = function () {
 	}
 };
 
-RunScreen.prototype.onClick = function(currentEvent) {
+RunScreen.prototype.onTouchEnd = function(currentEvent) {
 	runningMan.startJumping();
 };
 
@@ -392,6 +510,7 @@ RunScreen.prototype.onKeyUp = function(currentEvent) {
 
 function GameOverScreen(screenName) {
 	GameScreen.call(this, screenName);
+	this.mybutton = new Button({name:"Next Level", x:BASE_WIDTH/2-150/2, y:BASE_HEIGHT/2-30/2, width:150, height:30})
 }
 
 GameOverScreen.prototype = Object.create(GameScreen.prototype);
@@ -399,15 +518,34 @@ GameOverScreen.prototype.constructor = GameOverScreen;
 
 GameOverScreen.prototype.renderScreen = function () {
 	ctx.textAlign = "left";
-	ctx.font = "16px Arial";
+	ctx.font = myFontSize(16) + "px Arial";
 	ctx.fillText("Level: " + (level-1) + "  Score: " + score, 10, 20);
-	ctx.font = "30px Arial";
+	ctx.font = myFontSize(30) + "px Arial";
 	ctx.textAlign = "center";
-	ctx.fillText("Level Complete", canvas.width / 2, canvas.height / 2);
-	ctx.fillText("Press anywhere to start next level!!!", canvas.width / 2, (canvas.height / 2) + textLineHeight());
+	ctx.fillText("Level Complete", canvas.width / 2, (canvas.height / 2) - 40);
+	this.mybutton.render();
 };
 
-GameScreen.prototype.onKeyUp = function(currentEvent) {
+GameOverScreen.prototype.onTouchStart = function(currentEvent) {
+	console.log("In onTouchStart");
+	this.mybutton.onTouchStart(currentEvent);
+};
+
+GameOverScreen.prototype.onTouchMove = function(currentEvent) {
+	this.mybutton.onTouchMove(currentEvent);
+};
+
+GameOverScreen.prototype.onTouchEnd = function(currentEvent) {
+	console.log("In onTouchStart");
+	this.mybutton.onTouchEnd(currentEvent);
+    if (this.mybutton.isClicked) {
+		this.moveToNextScreen = true;
+		this.mybutton.isClicked = false;
+	}
+};
+
+
+GameOverScreen.prototype.onKeyUp = function(currentEvent) {
 	if (currentEvent.keyCode === 32) {
 		this.goToNextScreen();
 	}
@@ -418,9 +556,9 @@ var menuScreen = new GameScreen("Menu Screen");
 var runScreen = new RunScreen("Run");
 var gameOverScreen = new GameOverScreen("Game Over");
 splashScreen.nextScreen = menuScreen;
-menuScreen.nextScreen = runScreen;
+menuScreen.nextScreen = gameOverScreen;
 runScreen.nextScreen = gameOverScreen;
-gameOverScreen.nextScreen = runScreen;
+gameOverScreen.nextScreen = menuScreen;
 currentGameScreen = splashScreen;
 
 // Main Loop
