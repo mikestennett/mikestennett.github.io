@@ -17,6 +17,9 @@ var themeMusicPlaying = false;
 var GROUND_LEVEL = 60;
 var currentGameScreen = new GameScreen("test");
 var pressedDown = false;
+var touchStartX = 0;
+var touchStartY = 0;
+
 
 //var audioCoin = new Audio('audio/smb_coin.wav');
 //var audioJump = new Audio('audio/smb_jump-small.wav');
@@ -411,6 +414,8 @@ window.addEventListener('keyup', function (e) {
 window.addEventListener('touchstart', function (e) {
 	currentGameScreen.onTouchStart(e);
 	pressedDown = true;
+	touchStartX = e.x;
+	touchStartY = e.y;
 }, false);
 
 window.addEventListener('touchend', function (e) {
@@ -425,6 +430,8 @@ window.addEventListener('touchmove', function (e) {
 window.addEventListener('mousedown', function (e) {
 	currentGameScreen.onTouchStart(e);
 	pressedDown = true;
+	touchStartX = e.x;
+	touchStartY = e.y;
 }, false);
 
 window.addEventListener('mouseup', function (e) {
@@ -522,7 +529,7 @@ GameOverScreen.prototype.renderScreen = function () {
 	ctx.fillText("Level: " + (level-1) + "  Score: " + score, 10, 20);
 	ctx.font = myFontSize(30) + "px Arial";
 	ctx.textAlign = "center";
-	ctx.fillText("Level Complete", canvas.width / 2, (canvas.height / 2) - 40);
+	ctx.fillText("X = " + touchStartX + " Y = " + touchStartY, canvas.width / 2, (canvas.height / 2) - 40);
 	this.mybutton.render();
 };
 
@@ -551,7 +558,7 @@ GameOverScreen.prototype.onKeyUp = function(currentEvent) {
 	}
 };
 
-var splashScreen = new GameScreen("Splash Screen 3");
+var splashScreen = new GameScreen("Splash Screen 1");
 var menuScreen = new GameScreen("Menu Screen");
 var runScreen = new RunScreen("Run");
 var gameOverScreen = new GameOverScreen("Game Over");
