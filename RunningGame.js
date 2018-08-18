@@ -177,9 +177,9 @@ Button.prototype.render = function () {
 }
 
 Button.prototype.onTouchStart = function (currentEvent) {
-	if (eventXYInRect(currentEvent, this)) {
+	//if (eventXYInRect(currentEvent, this)) {
 		this.isPressed = true;
-	}
+	//}
 }
 
 Button.prototype.onTouchMove = function (currentEvent) {
