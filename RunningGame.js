@@ -189,7 +189,7 @@ Button.prototype.onTouchMove = function (currentEvent) {
 		} else {
 			this.isPressed = false;
 		}
-	} 
+	}  
 }
 
 Button.prototype.onTouchEnd = function (currentEvent) {
