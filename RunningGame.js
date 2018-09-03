@@ -1,3 +1,7 @@
+// go to directory 
+// git push origin master
+
+
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 /*function drawCircle() {
@@ -19,6 +23,7 @@ var currentGameScreen = new GameScreen("test");
 var pressedDown = false;
 var touchStartX = 0;
 var touchStartY = 0;
+var touchLength = 0;
 
 
 //var audioCoin = new Audio('audio/smb_coin.wav');
@@ -180,9 +185,9 @@ Button.prototype.render = function () {
 }
 
 Button.prototype.onTouchStart = function (currentEvent) {
-	//if (eventXYInRect(currentEvent, this)) {
+	if (eventXYInRect(currentEvent, this)) {
 		this.isPressed = true;
-	//}
+	}
 }
 
 Button.prototype.onTouchMove = function (currentEvent) {
@@ -411,27 +416,43 @@ window.addEventListener('keyup', function (e) {
 	currentGameScreen.onKeyUp(e);
 }, false);
 
+function setTouches(e) {
+	if (e.touches != null) {
+		touchLength = e.touches.length;
+		if (touchLength > 0) {
+			touchStartX = e.touches[0].clientX;
+			touchStartY = e.touches[0].clientY;
+			e.x = touchStartX;
+			e.y = touchStartY;
+		}
+	}
+}
+
 window.addEventListener('touchstart', function (e) {
+	setTouches(e);
 	currentGameScreen.onTouchStart(e);
 	pressedDown = true;
-	touchStartX = e.x;
-	touchStartY = e.y;
+	console.log("Touch Start " + e.touches.length);
 }, false);
 
 window.addEventListener('touchend', function (e) {
+	setTouches(e);
 	currentGameScreen.onTouchEnd(e);
 	pressedDown = false;
+	console.log("Touch End " + e.touches.length);
 }, false);
 
 window.addEventListener('touchmove', function (e) {
+	setTouches(e);
 	currentGameScreen.onTouchMove(e);
+
+	console.log("Touch Move " + e.touches.length);
 }, false);
 
 window.addEventListener('mousedown', function (e) {
 	currentGameScreen.onTouchStart(e);
 	pressedDown = true;
-	touchStartX = e.x;
-	touchStartY = e.y;
+	setTouches(e);
 }, false);
 
 window.addEventListener('mouseup', function (e) {
@@ -529,7 +550,7 @@ GameOverScreen.prototype.renderScreen = function () {
 	ctx.fillText("Level: " + (level-1) + "  Score: " + score, 10, 20);
 	ctx.font = myFontSize(30) + "px Arial";
 	ctx.textAlign = "center";
-	ctx.fillText("X = " + touchStartX + " Y = " + touchStartY, canvas.width / 2, (canvas.height / 2) - 40);
+	ctx.fillText("X = " + touchStartX + " Y = " + touchStartY + " Touches Len " + touchLength, canvas.width / 2, (canvas.height / 2) - 40);
 	this.mybutton.render();
 };
 
@@ -539,11 +560,12 @@ GameOverScreen.prototype.onTouchStart = function(currentEvent) {
 };
 
 GameOverScreen.prototype.onTouchMove = function(currentEvent) {
+	console.log("In onTouchMove");
 	this.mybutton.onTouchMove(currentEvent);
 };
 
 GameOverScreen.prototype.onTouchEnd = function(currentEvent) {
-	console.log("In onTouchStart");
+	console.log("In onTouchEnd");
 	this.mybutton.onTouchEnd(currentEvent);
     if (this.mybutton.isClicked) {
 		this.moveToNextScreen = true;
