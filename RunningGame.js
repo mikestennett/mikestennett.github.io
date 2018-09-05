@@ -430,6 +430,7 @@ function setTouches(e) {
 
 window.addEventListener('touchstart', function (e) {
 	e.preventDefault()
+	e.stopPropagation();
 	setTouches(e);
 	currentGameScreen.onTouchStart(e);
 	pressedDown = true;
@@ -438,6 +439,7 @@ window.addEventListener('touchstart', function (e) {
 
 window.addEventListener('touchend', function (e) {
 	e.preventDefault()
+	e.stopPropagation();
 	setTouches(e);
 	currentGameScreen.onTouchEnd(e);
 	pressedDown = false;
@@ -445,9 +447,11 @@ window.addEventListener('touchend', function (e) {
 }, false);
 
 window.addEventListener("scroll",function(e){
-    window.scrollTo(0,0)
+    window.scrollTo(0,0);
 	e.preventDefault();
 	e.stopPropagation();
+	window.scrollTo(0,0);
+
 },false)
 
 window.addEventListener('touchmove', function (e) {
