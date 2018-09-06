@@ -446,12 +446,13 @@ window.addEventListener('touchend', function (e) {
 	console.log("Touch End " + e.touches.length);
 }, false);
 
+/*
 window.addEventListener("scroll",function(e){
     window.scrollTo(0,0)
 	e.preventDefault();
 	e.stopPropagation();
 },false)
-
+*/
 window.addEventListener('touchmove', function (e) {
 	e.preventDefault();
 	e.stopPropagation();
@@ -592,7 +593,7 @@ GameOverScreen.prototype.onKeyUp = function(currentEvent) {
 	}
 };
 
-var splashScreen = new GameScreen("Splash Screen 2.8");
+var splashScreen = new GameScreen("Splash Screen 8.8");
 var menuScreen = new GameScreen("Menu Screen");
 var runScreen = new RunScreen("Run");
 var gameOverScreen = new GameOverScreen("Game Over");
