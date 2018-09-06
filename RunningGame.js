@@ -596,12 +596,12 @@ GameOverScreen.prototype.onKeyUp = function(currentEvent) {
 	}
 };
 
-var splashScreen = new GameScreen("Splash Screen 7.8");
+var splashScreen = new GameScreen("Splash Screen 1.0");
 var menuScreen = new GameScreen("Menu Screen");
 var runScreen = new RunScreen("Run");
 var gameOverScreen = new GameOverScreen("Game Over");
 splashScreen.nextScreen = menuScreen;
-menuScreen.nextScreen = gameOverScreen;
+menuScreen.nextScreen = runScreen;
 runScreen.nextScreen = gameOverScreen;
 gameOverScreen.nextScreen = menuScreen;
 currentGameScreen = splashScreen;
