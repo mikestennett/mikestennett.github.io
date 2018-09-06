@@ -429,7 +429,8 @@ function setTouches(e) {
 }
 
 window.addEventListener('touchstart', function (e) {
-	e.preventDefault()
+    window.scrollTo(0,0);
+	e.preventDefault();
 	e.stopPropagation();
 	setTouches(e);
 	currentGameScreen.onTouchStart(e);
@@ -438,7 +439,8 @@ window.addEventListener('touchstart', function (e) {
 }, false);
 
 window.addEventListener('touchend', function (e) {
-	e.preventDefault()
+    window.scrollTo(0,0);
+	e.preventDefault();
 	e.stopPropagation();
 	setTouches(e);
 	currentGameScreen.onTouchEnd(e);
@@ -446,14 +448,15 @@ window.addEventListener('touchend', function (e) {
 	console.log("Touch End " + e.touches.length);
 }, false);
 
-/*
+
 window.addEventListener("scroll",function(e){
-    window.scrollTo(0,0)
+    window.scrollTo(0,0);
 	e.preventDefault();
 	e.stopPropagation();
 },false)
-*/
+
 window.addEventListener('touchmove', function (e) {
+    window.scrollTo(0,0);
 	e.preventDefault();
 	e.stopPropagation();
 	setTouches(e);
@@ -593,7 +596,7 @@ GameOverScreen.prototype.onKeyUp = function(currentEvent) {
 	}
 };
 
-var splashScreen = new GameScreen("Splash Screen 8.8");
+var splashScreen = new GameScreen("Splash Screen 7.8");
 var menuScreen = new GameScreen("Menu Screen");
 var runScreen = new RunScreen("Run");
 var gameOverScreen = new GameOverScreen("Game Over");
