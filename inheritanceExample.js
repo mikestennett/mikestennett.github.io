@@ -17,14 +17,17 @@ Person.prototype.goodbye = function () {
 };
 
 
+// Teacher Constructor  
 function Teacher(first, last, age, gender, interests, subject) {
-  Person.call(this, first, last, age, gender, interests);
+  Person.call(this, first, last, age, gender, interests);  // Call super class constructor
 
   this.subject = subject;
 }
 
-Teacher.prototype = Object.create(Person.prototype);
-Teacher.prototype.constructor = Teacher;
+
+// Inherit from Person
+Teacher.prototype = Object.create(Person.prototype); // Inherit the Person methods
+Teacher.prototype.constructor = Teacher;  // Set the constructor back to Teacher - because JS is lame
 
 Teacher.prototype.greeting = function () {
   var prefix;

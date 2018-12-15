@@ -19,7 +19,6 @@ var score = 0;
 var level = 1;
 var themeMusicPlaying = false;
 var GROUND_LEVEL = 60;
-var currentGameScreen = new GameScreen("test");
 var pressedDown = false;
 var touchStartX = 0;
 var touchStartY = 0;
@@ -147,64 +146,6 @@ var eventXYInRect = function(currentEvent, aRect) {
 	} else {
 		return false;
 	}
-
-}
-
-function Button(options) {
-	this.name = options.name;
-	this.x = options.x;
-	this.y = options.y;
-	this.width = options.width;
-	this.height = options.height;
-	this.fontPointSize = Math.trunc(this.height*0.75);
-	this.isPressed = false;
-	this.isClicked = false;
-}
-
-Button.prototype.render = function () {
-	// draw a box
-	var tmpFillStyle = ctx.fillStyle;
-	if (this.isPressed) {
-		ctx.fillStyle = 'black';
-	} else {
-		ctx.fillStyle = 'white';
-	}
-	myDrawRect(this);
-	// draw name
-	if (this.isPressed) {
-		ctx.fillStyle = 'white';
-	} else {
-		ctx.fillStyle = 'black';
-	}
-	ctx.font = myFontSize(this.fontPointSize) + "px Arial";
-	ctx.textAlign = "center";
-	ctx.fillText(this.name, 
-		translateDrawX(this.x + (this.width/2)), 
-		canvas.height - translateDrawY(this.y) - translateDrawY(this.height*0.25)) ;
-	ctx.fillStyle = tmpFillStyle;
-}
-
-Button.prototype.onTouchStart = function (currentEvent) {
-	if (eventXYInRect(currentEvent, this)) {
-		this.isPressed = true;
-	}
-}
-
-Button.prototype.onTouchMove = function (currentEvent) {
-	if (pressedDown) {
-		if (eventXYInRect(currentEvent, this)) {
-			this.isPressed = true;
-		} else {
-			this.isPressed = false;
-		}
-	}  
-}
-
-Button.prototype.onTouchEnd = function (currentEvent) {
-	if(this.isPressed) {
-		this.isPressed = false;
-		this.isClicked = true;
-	}	
 
 }
 
@@ -413,7 +354,7 @@ var setCanvasSize = function () {
 // Event Listeners
 
 window.addEventListener('keyup', function (e) {
-	currentGameScreen.onKeyUp(e);
+	allScreens.currentScreen().onKeyUp(e);
 }, false);
 
 function setTouches(e) {
@@ -433,7 +374,7 @@ window.addEventListener('touchstart', function (e) {
 	e.preventDefault();
 	e.stopPropagation();
 	setTouches(e);
-	currentGameScreen.onTouchStart(e);
+	allScreens.currentScreen().onTouchStart(e);
 	pressedDown = true;
 	console.log("Touch Start " + e.touches.length);
 }, false);
@@ -443,7 +384,7 @@ window.addEventListener('touchend', function (e) {
 	e.preventDefault();
 	e.stopPropagation();
 	setTouches(e);
-	currentGameScreen.onTouchEnd(e);
+	allScreens.currentScreen().onTouchEnd(e);
 	pressedDown = false;
 	console.log("Touch End " + e.touches.length);
 }, false);
@@ -460,24 +401,24 @@ window.addEventListener('touchmove', function (e) {
 	e.preventDefault();
 	e.stopPropagation();
 	setTouches(e);
-	currentGameScreen.onTouchMove(e);
+	allScreens.currentScreen().onTouchMove(e);
 
 	console.log("Touch Move " + e.touches.length);
 }, false);
 
 window.addEventListener('mousedown', function (e) {
-	currentGameScreen.onTouchStart(e);
+	allScreens.currentScreen().onTouchStart(e);
 	pressedDown = true;
 	setTouches(e);
 }, false);
 
 window.addEventListener('mouseup', function (e) {
-	currentGameScreen.onTouchEnd(e);
+	allScreens.currentScreen().onTouchEnd(e);
 	pressedDown = false;
 }, false);
 
 window.addEventListener('mousemove', function (e) {
-	currentGameScreen.onTouchMove(e);
+	allScreens.currentScreen().onTouchMove(e);
 }, false);
 
 /*
@@ -493,7 +434,7 @@ function RunScreen(screenName) {
 	this.enteringScreen = true;
 	this.coins = null;
 	this.speed = 0;
-	this.levelLength = 4000;
+	this.levelLength = 1000;
 }
 
 RunScreen.prototype = Object.create(GameScreen.prototype);
@@ -504,7 +445,7 @@ RunScreen.prototype.enteringGameScreen = function() {
 	this.backgroundX = 0;
 	this.coins = createCoins(coords);
 	this.speed = 4 + level * 2;
-	this.levelLength = 4000;
+	this.levelLength = 1000;
 
 };
 
@@ -537,7 +478,7 @@ RunScreen.prototype.renderScreen = function () {
 	ctx.fillText("Level: " + level + "  Score: " + score, 10, 20);
 	this.levelLength = this.levelLength - this.speed;
 	if (this.levelLength < 0) {
-		this.goToNextScreen();
+		allScreens.setScreenTo("Game Over");
 		level += 1;
 	}
 };
@@ -552,9 +493,18 @@ RunScreen.prototype.onKeyUp = function(currentEvent) {
 	}
 };
 
+function nextLevelButtonCB() {
+	allScreens.setScreenTo("Run");
+}
+
+var testfunc = nextLevelButtonCB;
+var testfunc2 = testfunc;
+
 function GameOverScreen(screenName) {
 	GameScreen.call(this, screenName);
 	this.mybutton = new Button({name:"Next Level", x:BASE_WIDTH/2-150/2, y:BASE_HEIGHT/2-30/2, width:150, height:30})
+	this.mybutton.setCallback(nextLevelButtonCB);
+	this.eventObjs.push(this.mybutton);
 }
 
 GameOverScreen.prototype = Object.create(GameScreen.prototype);
@@ -569,7 +519,7 @@ GameOverScreen.prototype.renderScreen = function () {
 	ctx.fillText("X = " + touchStartX + " Y = " + touchStartY + " Touches Len " + touchLength, canvas.width / 2, (canvas.height / 2) - 40);
 	this.mybutton.render();
 };
-
+/*
 GameOverScreen.prototype.onTouchStart = function(currentEvent) {
 	console.log("In onTouchStart");
 	this.mybutton.onTouchStart(currentEvent);
@@ -583,37 +533,31 @@ GameOverScreen.prototype.onTouchMove = function(currentEvent) {
 GameOverScreen.prototype.onTouchEnd = function(currentEvent) {
 	console.log("In onTouchEnd");
 	this.mybutton.onTouchEnd(currentEvent);
-    if (this.mybutton.isClicked) {
-		this.moveToNextScreen = true;
-		this.mybutton.isClicked = false;
-	}
 };
 
 
 GameOverScreen.prototype.onKeyUp = function(currentEvent) {
 	if (currentEvent.keyCode === 32) {
-		this.goToNextScreen();
+		allScreens.setScreenTo("Run");
 	}
 };
-
+*/
 var splashScreen = new GameScreen("Splash Screen 1.0");
 var menuScreen = new GameScreen("Menu Screen");
 var runScreen = new RunScreen("Run");
 var gameOverScreen = new GameOverScreen("Game Over");
-splashScreen.nextScreen = menuScreen;
-menuScreen.nextScreen = runScreen;
-runScreen.nextScreen = gameOverScreen;
-gameOverScreen.nextScreen = menuScreen;
-currentGameScreen = splashScreen;
+splashScreen.nextScreen = "Menu Screen";
+menuScreen.nextScreen = "Run";
+runScreen.nextScreen = "Game Over";
+gameOverScreen.nextScreen = "Menu Screen";
+allScreens.setScreenTo("Splash Screen 1.0");
 
 // Main Loop
 
 function gameLoop() {
-	var tmpGameScreen = currentGameScreen.checkAndGoToNext();
-	currentGameScreen = tmpGameScreen;
 	setCanvasSize();
 	//console.log("levels.length " + levels.length + " level " + level);
-	currentGameScreen.renderScreen();
+	allScreens.currentScreen().renderScreen();
 	window.requestAnimationFrame(gameLoop);
 };
 

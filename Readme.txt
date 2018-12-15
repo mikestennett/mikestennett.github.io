@@ -5,6 +5,9 @@ Git Notes
 // go to directory 
 git push origin master
 
+// Viewing Commit History
+git log
+
 // Git username: mikestennett
 // Git email: Std not personel
 // Git Password: Std unsecure 1st cap and 2 numbers
