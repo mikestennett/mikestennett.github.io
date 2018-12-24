@@ -1,3 +1,12 @@
+To Do:
+Javascript Multiple Inheritance
+
+
+Javascript References
+
+http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-262.pdf
+
+https://developer.mozilla.org/en-US/docs/Web/JavaScript
 
 
 Git Notes
