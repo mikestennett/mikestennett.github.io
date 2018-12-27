@@ -7,9 +7,14 @@ class AllScreens {
         this.firstTime = true;
         this.noScreenFoundName = "No Screen Found";
         this.allTheScreens = new Map();
+        this.theCanvas;
+        this.theContext;
+        this.theEasel;
     }
 
-    currentScreen() {
+
+    
+     currentScreen() {
         var tmpScreen;
         if (this.firstTime) {
             this.firstTime = false;
@@ -44,9 +49,34 @@ class AllScreens {
         return tmpScreen;
     }
 
+    setCanvas(canvasId) {
+        this.theCanvas = document.getElementById(canvasId);
+        this.theContext = this.canvas.getContext("2d");
+        this.theEasel = new Easel(this.theContext);
+    }
+
+    get canvas() {  // getter - syntax like a property but is a funciton 
+        return this.theCanvas;
+    }
+
+    get context() {
+        return this.theContext;
+    }
+
+    get easel() {
+        return this.theEasel;
+    }
+
+
     static getInstance() {
         return (AllScreens.instance == null) ? AllScreens.instance = new AllScreens() : AllScreens.instance;
     }
+
+    static currentScreen() {
+        return AllScreens.getInstance().currentScreen();
+    }
+
+
 
 }
 
@@ -56,7 +86,22 @@ class GameScreen {
         this.nextScreen = screenName;
         AllScreens.getInstance().addNewScreen(screenName, this);
         this.eventObjs = new Array();
+        this.mouseIsDown = false;
     }
+
+    get canvas() {  
+        return AllScreens.getInstance().canvas;
+    }
+
+    get context() {
+        return AllScreens.getInstance().context;
+    }
+
+    get easel() {
+        return AllScreens.getInstance().easel;
+    }
+
+
 
     addEventObj(eventObj) {
         eventObjs.push(eventObj);
@@ -69,9 +114,9 @@ class GameScreen {
         }
         if (len == 0) {
             // output a generic screen
-            ctx.font = "30px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText(this.screenName, canvas.width / 2, canvas.height / 2);
+            this.context.font = "30px Arial";
+            this.context.textAlign = "center";
+            this.context.fillText(this.screenName, this.canvas.width / 2, this.canvas.height / 2);
         }
     }
     

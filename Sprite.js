@@ -8,7 +8,7 @@ class Sprite {
         this.tickCount = 0;
         this.ticksPerFrame = options.ticksPerFrame || 0; // Default to 0 waits per frame
         this.numberOfFrames = options.numberOfFrames || 1; // Default to one frame
-        this.context = options.context;
+        this.gameScreen = options.gameScreen || undefined;
         this.width = options.width;
         this.height = options.height;
         this.image = options.image;
@@ -68,7 +68,7 @@ class Sprite {
 
     render() {
         // Draw the animation
-        myDrawImage(
+        this.gameScreen.easel.myDrawImage(
             this.image,
             (this.frameIndex * this.imageWidth / this.numberOfFrames),
             0,
